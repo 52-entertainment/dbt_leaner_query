@@ -7,7 +7,7 @@
 
 {{ 
     config(
-        enabled = false
+        enabled = false,
         cluster_by = ['table_name'],
         partition_by={
             "field": "score_date",
