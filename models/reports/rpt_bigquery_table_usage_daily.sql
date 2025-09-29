@@ -75,10 +75,12 @@ threat_calculation as (
     from {{ ref('int_threat_calculation') }}
 ),
 
-importance_calculation as (
+
+{# importance_calculation as (
     select *
     from {{ ref('int_importance_calculations') }}
 ),
+#}
 
 aggregates as (
     select
@@ -115,18 +117,18 @@ aggregates as (
 final as (
     select distinct
         aggregates.*,
-        threat_calculation.threat_score,
-        importance_calculation.importance_score,
-        (importance_calculation.importance_score * {{ var('leaner_query_priority_importance_level_weight') }})
+        threat_calculation.threat_score as threat_score,
+        cast(1 as float64) as importance_score,
+        (1 * {{ var('leaner_query_priority_importance_level_weight') }})
         + (threat_calculation.threat_score * {{ var('leaner_query_priority_threat_level_weight') }})
         as priority_score
     from aggregates
     left outer join threat_calculation
         on aggregates.table_name = threat_calculation.referenced_view_or_table
             and aggregates.report_date = threat_calculation.statement_date
-    left outer join importance_calculation
+{#     left outer join importance_calculation
         on aggregates.table_name = importance_calculation.table_name
-            and aggregates.report_date = importance_calculation.score_date
+            and aggregates.report_date = importance_calculation.score_date #}
 )
 
 select *
